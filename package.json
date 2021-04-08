@@ -1,0 +1,49 @@
+{
+  "name": "cade-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "seed": "npx sequelize db:seed:all",
+    "migrate": "npx sequelize db:migrate",
+    "migrate:undo": "npx sequelize db:migrate:undo:all",
+    "init-db": "docker-compose up -f docker-compose.local.yaml -d --build && npm run seed && npm run migrate",
+    "local": "nodemon ./bin/api",
+    "stage": "docker-compose up -d --build ",
+    "prod": "node ./bin/api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LvFarias/cade-api.git"
+  },
+  "author": "Luan Vasco de Farias <luan.vfarias@gmail.com> (https://github.com/LvFarias/)",
+  "contributors": [
+    "Luan Vasco de Farias <luan.vfarias@gmail.com> (https://github.com/LvFarias/)"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LvFarias/cade-api/issues"
+  },
+  "homepage": "https://github.com/LvFarias/cade-api#readme",
+  "keywords": [
+    "cade",
+    "cade-app",
+    "cade-api",
+    "logg",
+    "correio",
+    "rastreio",
+    "encomenda",
+    "transportadora"
+  ],
+  "dependencies": {
+    "cors": "^2.8.5",
+    "debug": "^3.2.7",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "http": "*",
+    "jsonwebtoken": "^8.5.1",
+    "nodemon": "^2.0.7",
+    "sequelize": "^6.6.2",
+    "sequelize-cli": "^6.2.0"
+  }
+}
