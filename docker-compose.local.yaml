@@ -3,6 +3,7 @@ services:
   cade_db:
     image: postgres
     restart: always
+    container_name: cade_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres

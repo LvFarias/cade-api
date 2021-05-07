@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Orders.associate = (models) => {
-    const { Users } = models;
+    const { Users, Deliveries } = models;
 
     Orders.belongsTo(
       Users,

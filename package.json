@@ -7,9 +7,11 @@
     "seed": "npx sequelize db:seed:all",
     "migrate": "npx sequelize db:migrate",
     "migrate:undo": "npx sequelize db:migrate:undo:all",
-    "init-db": "docker-compose up -f docker-compose.local.yaml -d --build && npm run seed && npm run migrate",
+    "create-db": "npx sequelize db:drop && npx sequelize db:create",
+    "init-db": "npm run create-db && npm run seed && npm run migrate",
+    "init-db-docker": "docker-compose -f docker-compose.local.yaml up -d --build && npm run init-db",
     "local": "nodemon ./bin/api",
-    "stage": "docker-compose up -d --build ",
+    "stage": "docker-compose up -d --build",
     "prod": "node ./bin/api"
   },
   "repository": {
@@ -43,6 +45,7 @@
     "http": "*",
     "jsonwebtoken": "^8.5.1",
     "nodemon": "^2.0.7",
+    "pg": "^8.5.1",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0"
   }
