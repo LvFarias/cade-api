@@ -1,132 +1,141 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 📦 Cade? - API de Rastreamento Centralizada
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+O **"Cade?"** é uma API centralizada de rastreio open source, desenvolvida para unificar o acompanhamento de encomendas de diferentes transportadoras (como Amazon, Correios, Mercado Livre, Jadlog, entre outras) em um único ecossistema.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Ao receber um código de rastreio (ou CPF/CNPJ) e o ID do provedor, a API consulta o status do pacote através de microserviços/plugins acoplados e retorna os dados em um formato padronizado. O projeto foi projetado para servir como base para futuros aplicativos mobile (Android/iOS) e skills da Alexa, permitindo que os usuários finais gerenciem seus pacotes ou perguntem por voz: *"Cadê meu tênis?"*.
 
-## Description
+## 🏗️ Arquitetura e Tecnologias
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Para evitar a complexidade de gerenciar múltiplos scrapings e integrações diretas no núcleo da API, o projeto utiliza uma **arquitetura modular baseada em plugins (wrappers) com injeção automática**.
 
-## Project setup
+* O núcleo da aplicação lida com a autenticação de usuários (JWT), contas, rotas HTTP e banco de dados.
+* Cada transportadora é isolada em um plugin próprio dentro da pasta `src/providers/implementations/`.
+* **Registro Automático:** A API lê a pasta de plugins dinamicamente e registra as instâncias em memória ao iniciar o servidor. Nenhuma alteração no core é necessária para adicionar novos provedores!
+* O wrapper traduz a resposta (XML, JSON, HTML) para um DTO de retorno padronizado para o sistema.
+* **Ecossistema:** Desenvolvido em **Node.js** com **NestJS** e **TypeScript** (ESM). Utiliza **Prisma ORM** com **PostgreSQL** para persistência e **Swagger** para documentação.
 
-```bash
-$ npm install
-```
+## 🚀 Como Rodar Localmente
 
-## Compile and run the project
+Siga os passos abaixo para configurar o ambiente de desenvolvimento na sua máquina.
+
+### 1. Pré-requisitos
+
+* **Node.js**: v26.8.2 (O projeto utiliza o `mise` para gestão de versões. Rode `mise install` se aplicável).
+* **Docker**: Para rodar o banco de dados PostgreSQL isolado.
+
+### 2. Instalação
+
+Clone o repositório e instale as dependências:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/seu-usuario/cade-api.git
+cd cade-api
+npm install
 ```
 
-## Run tests
+### 3. Configuração do Ambiente
+
+Crie um arquivo `.env` na raiz do projeto contendo as credenciais do banco e a chave JWT:
+
+```env
+DATABASE_URL="postgresql://admin:adminpassword@localhost:5432/cade_db?schema=public"
+JWT_SECRET="sua_chave_secreta_aqui"
+```
+
+### 4. Subindo a Infraestrutura
+
+Levante o contêiner do PostgreSQL usando o Docker Compose:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Gere o cliente do Prisma e crie as tabelas no banco de dados:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma generate
+npx prisma migrate dev --name init
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
+Popule o banco de dados com os provedores iniciais (Seed dinâmico):
 
 ```bash
-$ npx @nestjs/observe link
+npx prisma db seed
 ```
 
-It installs `@nestjs/observe`, wires it into `AppModule` and `main.ts`, and writes the app key and secret into `.env`, which every `nest start` script (`start`, `start:dev`, `start:debug`) then loads. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
+### 5. Executando a API
 
-Or do it by hand:
+Inicie o servidor de desenvolvimento:
 
 ```bash
-$ npm install @nestjs/observe
+npm run start:dev
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/sdk) - it takes a single import and an app key.
+A API estará rodando! Você pode acessar a **Documentação Interativa (Swagger)** e testar os endpoints em:
+👉 `http://localhost:3000/docs`
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+## 🔌 Como Adicionar um Novo Provedor (Plugin)
 
-## Resources
+A arquitetura do "Cade?" foi feita para a comunidade! O sistema é **plug and play**. Qualquer pessoa pode adicionar um novo provedor (ex: Jadlog, Azul Cargo) em passos bem simples:
 
-Check out a few resources that may come in handy when working with NestJS:
+### Passo 1: Crie o Wrapper
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Dentro de `src/providers/implementations/`, crie um arquivo para sua transportadora seguindo o padrão de nomenclatura `<id_do_provedor>.provider.ts` (ex: `jadlog.provider.ts`). Implemente a interface `ProviderPlugin`. O retorno deve ser um `TrackingResult` padronizado.
 
-## Support
+```typescript
+import { ProviderPlugin, TrackingResult } from '../interfaces/provider-plugin.interface.js';
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+export class JadlogProvider implements ProviderPlugin {
+  async getTracking(trackingCode: string, document?: string): Promise<TrackingResult> {
+    // 1. Faça a requisição real para a transportadora aqui
+    // 2. Retorne o objeto formatado:
+    return {
+      currentStatus: 'EM_TRANSITO',
+      currentDescription: 'Objeto em trânsito',
+      history: [/* histórico de eventos */]
+    };
+  }
+}
+```
 
-## Stay in touch
+### Passo 2: (Automático!) Reconhecimento Dinâmico
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Você **não precisa** alterar nenhum serviço central ou injetar sua classe manualmente! A API utiliza uma varredura dinâmica no módulo NestJS. Ao salvar o arquivo na pasta `implementations`, o sistema extrai o ID do arquivo (`jadlog`) e já o deixa disponível para os usuários finais automaticamente.
 
-## License
+### Passo 3: Crie o Seed Dinâmico
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Para que o novo provedor seja listado nas consultas do banco de dados, adicione um arquivo orquestrado em `prisma/seeds/jadlog.seed.ts`:
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+
+export async function seed(prisma: PrismaClient) {
+  await prisma.provider.upsert({
+    where: { id: 'jadlog' },
+    update: {},
+    create: {
+      id: 'jadlog', // Este ID DEVE ser o mesmo do nome do arquivo .provider.ts
+      name: 'Jadlog Logística',
+      active: true,
+      requiresDocument: true, // true se exigir CPF/CNPJ
+    },
+  });
+  console.log('📦 Provedor inserido: Jadlog');
+}
+```
+
+*Na próxima vez que alguém rodar `npx prisma db seed` ou subir a API do zero, seu provedor entrará no banco automaticamente.*
+
+## 🤝 Como Abrir um Pull Request (PR)
+
+Quer contribuir com um novo provedor ou melhoria?
+
+1. Faça um **Fork** do repositório.
+2. Crie uma branch para a sua feature (`git checkout -b feature/novo-provedor-jadlog`).
+3. Desenvolva o plugin, teste localmente e faça o commit (`git commit -m "feat: adiciona plugin de rastreio da Jadlog"`).
+4. Faça o push para o seu fork (`git push origin feature/novo-provedor-jadlog`).
+5. Abra o **Pull Request** no repositório original detalhando a transportadora e se ela exige CPF/CNPJ.
+
+## 📄 Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE). Você é livre para usar, modificar, distribuir e integrar esta API em seus próprios projetos comerciais ou open source.
