@@ -17,7 +17,7 @@ export class CreateTrackingDto {
   @IsOptional()
   document?: string;
 
-  @ApiProperty({ example: 'Meu Tênis', description: 'Apelido para a Alexa' })
+  @ApiProperty({ example: 'Meu Tênis', description: 'Apelido para controle pessoal' })
   @IsString()
   @IsNotEmpty()
   nickname: string;
