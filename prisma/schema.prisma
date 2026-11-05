@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String     @map("password_hash")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  trackings    Tracking[]
+
+  @@map("users")
+}
+
+model Provider {
+  id               String     @id
+  name             String
+  active           Boolean    @default(true)
+  requiresDocument Boolean    @default(false) @map("requires_document")
+  configSchema     Json?      @map("config_schema")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  trackings        Tracking[]
+
+  @@map("providers")
+}
+
+model Tracking {
+  id                    String            @id @default(uuid())
+  userId                String            @map("user_id")
+  providerId            String            @map("provider_id")
+  trackingCode          String            @map("tracking_code")
+  document              String?           
+  nickname              String            
+  lastStatus            String?           @map("last_status")
+  lastStatusDescription String?           @map("last_status_description")
+  lastCheckedAt         DateTime?         @map("last_checked_at")
+  createdAt             DateTime          @default(now()) @map("created_at")
+
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider              Provider          @relation(fields: [providerId], references: [id])
+  history               TrackingHistory[]
+
+  @@map("trackings")
+}
+
+model TrackingHistory {
+  id          String   @id @default(uuid())
+  trackingId  String   @map("tracking_id")
+  status      String
+  description String
+  location    String?
+  occurredAt  DateTime @map("occurred_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tracking    Tracking @relation(fields: [trackingId], references: [id], onDelete: Cascade)
+
+  @@map("tracking_history")
+}
