@@ -2,9 +2,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js'; // Lembre-se do .js no ESM!
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { CadeLogger } from './logger/logger.service.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true, // Força o Nest a esperar seu logger carregar
+  });
+
+  // Substitui o logger oficial do Nest pelo seu Custom Logger
+  app.useLogger(app.get(CadeLogger));
 
   // Habilita o CORS para requisições frontend no futuro
   app.enableCors();
